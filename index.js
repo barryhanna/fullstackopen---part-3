@@ -1,6 +1,28 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+require('dotenv').config();
+const mongoose = require('mongoose');
+
+const url = `mongodb+srv://barryahanna:${process.env.MONGO_DB_PASSWORD}@notes.pxqazfi.mongodb.net/noteApp`;
+
+mongoose.set('strictQuery', false);
+mongoose.connect(url);
+
+const noteSchema = new mongoose.Schema({
+	content: String,
+	important: Boolean,
+});
+
+noteSchema.set('toJSON', {
+	transform: (document, returnedObject) => {
+		returnedObject.id = returnedObject._id.toString();
+		delete returnedObject._id;
+		delete returnedObject.__v;
+	},
+});
+
+const Note = mongoose.model('Note', noteSchema);
 
 app.use(express.static('build'));
 app.use(cors());
@@ -30,7 +52,9 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/notes', (req, res) => {
-	res.json(notes);
+	Note.find({}).then((notes) => {
+		res.json(notes);
+	});
 });
 
 app.get('/api/notes/:id', (req, res) => {
