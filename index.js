@@ -8,25 +8,6 @@ app.use(express.static('build'));
 app.use(cors());
 app.use(express.json());
 
-let notes = [
-	{
-		id: 1,
-		content: 'HTML is easy',
-		important: true,
-	},
-	{
-		id: 2,
-		content: 'Browser can execute only JavaScript',
-		important: false,
-	},
-	{
-		id: 3,
-		content:
-			'GET and POST are the most important methods of HTTP protocol',
-		important: true,
-	},
-];
-
 app.get('/', (req, res) => {
 	res.send('<h1>Hello, World!</h1>');
 });
@@ -50,14 +31,14 @@ app.get('/api/notes/:id', (request, response, next) => {
 });
 
 app.delete('/api/notes/:id', (req, res, next) => {
-	Note.findByIdAndDelete(request.params.id)
+	Note.findByIdAndDelete(res.params.id)
 		.then((result) => {
-			response.status(204).end();
+			res.status(204).end();
 		})
 		.catch((error) => next(error));
 });
 
-app.post('/api/notes', (request, response, error) => {
+app.post('/api/notes', (request, response, next) => {
 	const body = request.body;
 
 	const note = new Note({
@@ -95,7 +76,7 @@ const errorHandler = (error, request, response, next) => {
 	} else if (error.name === 'ValidationError') {
 		return response.status(400).json({ error: error.message });
 	}
-	next(err);
+	next(error);
 };
 
 app.use(errorHandler);
