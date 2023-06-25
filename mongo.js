@@ -1,16 +1,7 @@
 const mongoose = require('mongoose');
+const { MONGODB_URI } = require('./utils/config');
 
-if (process.argv.length < 3) {
-	console.log('give password as an argument');
-	process.exit(1);
-}
-
-const password = process.argv[2];
-
-const url = `mongodb+srv://barryahanna:${password}@notes.pxqazfi.mongodb.net/noteApp`;
-
-mongoose.set('strictQuery', false);
-mongoose.connect(url);
+mongoose.connect(MONGODB_URI);
 
 const noteSchema = new mongoose.Schema({
 	content: String,
@@ -24,14 +15,24 @@ const note = new Note({
 	important: true,
 });
 
-Note.find({}).then((result) => {
-	result.forEach((note) => {
-		console.log(note);
-	});
+const note2 = new Note({
+	content: 'CSS is Easy',
+	important: true,
+});
+
+// Note.find({}).then((result) => {
+// 	result.forEach((note) => {
+// 		console.log(note);
+// 	});
+// 	mongoose.connection.close();
+// });
+
+note.save().then((result) => {
+	console.log('note saved!');
 	mongoose.connection.close();
 });
 
-// note.save().then((result) => {
-// 	console.log('note saved!');
-// 	mongoose.connection.close();
-// });
+note2.save().then((result) => {
+	console.log('note saved!');
+	mongoose.connection.close();
+});
