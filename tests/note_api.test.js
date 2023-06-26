@@ -9,10 +9,11 @@ mongoose.set('bufferTimeoutMS', 30000);
 
 beforeEach(async () => {
 	await Note.deleteMany({});
-	let noteObject = new Note(helper.initialNotes[0]);
-	await noteObject.save();
-	noteObject = new Note(helper.initialNotes[1]);
-	await noteObject.save();
+
+	for (let note of helper.initialNotes) {
+		let noteObject = new Note(note);
+		await noteObject.save();
+	}
 });
 
 test('notes are returned as json', async () => {
@@ -24,13 +25,11 @@ test('notes are returned as json', async () => {
 
 test('all notes are returned', async () => {
 	const response = await api.get('/api/notes');
-
 	expect(response.body).toHaveLength(helper.initialNotes.length);
 });
 
 test('a specific note is within the returned notes', async () => {
 	const response = await api.get('/api/notes');
-
 	const contents = response.body.map((r) => r.content);
 	expect(contents).toContain('Browser can execute only JavaScript');
 });
@@ -72,7 +71,7 @@ test('a specific note can be viewed', async () => {
 	const noteToView = notesAtStart[0];
 
 	const resultNote = await api
-		.get(`api/notes/${noteToView.id}`)
+		.get(`/api/notes/${noteToView.id}`)
 		.expect(200)
 		.expect('Content-Type', /application\/json/);
 
